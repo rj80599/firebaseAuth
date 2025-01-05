@@ -1,15 +1,13 @@
 package com.example.firebaseauth.pages
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.firebaseauth.AuthState
 import com.example.firebaseauth.AuthViewModel
+import com.example.firebaseauth.MainActivity
 
 @Composable
 fun LoginPage(
@@ -44,7 +43,7 @@ fun LoginPage(
     var password by remember {
         mutableStateOf("")
     }
-
+    val googleSignInIntent = authViewModel.googleSignInIntent.observeAsState()
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
 
@@ -54,6 +53,22 @@ fun LoginPage(
             is AuthState.Error -> Toast.makeText(context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
             else -> Unit
+        }
+    }
+
+    googleSignInIntent.value?.let { intentSender ->
+        LaunchedEffect(intentSender) {
+            val activity = context as? Activity
+            activity?.startIntentSenderForResult(
+                intentSender,
+                1001,
+                null,
+                0,
+                0,
+                0,
+                null
+            )
+            authViewModel.clearGoogleSignInIntent()
         }
     }
 
@@ -96,6 +111,15 @@ fun LoginPage(
             enabled = authState.value != AuthState.Loading
         ) {
             Text(text = "Login")
+        }
+
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { authViewModel.triggerGoogleSignIn() }
+        ) {
+            Text(text = "Login with Google")
         }
 
 
