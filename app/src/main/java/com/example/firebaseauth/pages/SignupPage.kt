@@ -42,18 +42,18 @@ fun SignupPage(
 
     val authState = authViewModel.authState.observeAsState()
 
-//    val context = LocalContext.current
-//    LaunchedEffect(authState.value) {
-//        when (authState.value) {
-//            is AuthState.Authenticated -> navController.navigate("home")
-//            is AuthState.Error -> Toast.makeText(
-//                context,
-//                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT
-//            ).show()
-//
-//            else -> Unit
-//        }
-//    }
+    val context = LocalContext.current
+    LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated -> navController.navigate("home")
+            is AuthState.Error -> Toast.makeText(
+                context,
+                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT
+            ).show()
+
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxSize(),
