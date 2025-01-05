@@ -2,14 +2,14 @@ package com.example.firebaseauth.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,66 +49,96 @@ fun LoginPage(
     val context = LocalContext.current
 
     LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Authenticated -> navController.navigate("home")
-            is AuthState.Error -> Toast.makeText(context,
-                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+        when (authState.value) {
+            is AuthState.Authenticated -> {
+                println("Authenticated successfully!")
+                navController.navigate("home")
+            }
+
+            is AuthState.Error -> {
+                Toast.makeText(
+                    context,
+                    (authState.value as AuthState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
             else -> Unit
         }
     }
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Login Page", fontSize = 32.sp)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-            },
-            label = {
-                Text(text = "Email")
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-            },
-            label = {
-                Text(text = "Password")
-            }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                authViewModel.login(email, password)
-            },
-            enabled = authState.value != AuthState.Loading
+    // Show a ProgressBar when the authState is loading
+    if (authState.value == AuthState.Loading) {
+        // ProgressBar while loading
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
         ) {
-            Text(text = "Login")
+            CircularProgressIndicator()
         }
+    } else {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Login Page", fontSize = 32.sp)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                },
+                label = {
+                    Text(text = "Email")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                },
+                label = {
+                    Text(text = "Password")
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    authViewModel.login(email, password)
+                },
+                enabled = authState.value != AuthState.Loading
+            ) {
+                Text(text = "Login")
+            }
 
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = {
-            navController.navigate("signup")
-        }) {
-            Text(text = "Don't have an account, Signup")
+            Button(
+                onClick = {
+                    authViewModel.googleSignInWithCredentialManager(context)
+                }, enabled = authState.value != AuthState.Loading
+            ) {
+                Text(text = "Google Sign In")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(onClick = {
+                navController.navigate("signup")
+            }, enabled = authState.value != AuthState.Loading) {
+                Text(text = "Don't have an account, Signup")
+            }
+
         }
-
     }
-
 }
 
 
